@@ -771,9 +771,18 @@ namespace JsonFx.Json
 						}
 						default:
 						{
-							this.Writer.Write("\\u");
-							this.Writer.Write(Char.ConvertToUtf32(value, i).ToString("X4"));
-							continue;
+							if (char.IsSurrogate(ch))
+                                                       {
+                                                           this.Writer.Write("\\u");
+                                                           this.Writer.Write(((int)ch).ToString("x4"));
+                                                           continue;
+                                                       }
+                                                       else
+                                                       {
+                                                           this.Writer.Write("\\u");
+                                                           this.Writer.Write(Char.ConvertToUtf32(value, i).ToString("X4"));
+                                                           continue;
+                                                       }		
 						}
 					}
 				}
