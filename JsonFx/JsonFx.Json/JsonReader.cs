@@ -390,7 +390,7 @@ namespace JsonFx.Json
 					genericDictionaryType = GetGenericDictionaryType(objectType);
 				}
 			
-			PopulateObject (obj, objectType, memberMap, genericDictionaryType);
+			PopulateObject (ref obj, objectType, memberMap, genericDictionaryType);
 		}
 		
 		private object ReadObject (Type objectType) {
@@ -411,7 +411,7 @@ namespace JsonFx.Json
 				result = new Dictionary<String, Object>();
 			}
 			
-			PopulateObject (result, objectType, memberMap, genericDictionaryType);
+			PopulateObject (ref result, objectType, memberMap, genericDictionaryType);
 			return result;
 		}
 		
@@ -439,7 +439,7 @@ namespace JsonFx.Json
 			return null;
 		}
 		
-		private void PopulateObject (object result, Type objectType, Dictionary<string, MemberInfo> memberMap, Type genericDictionaryType)
+		private void PopulateObject (ref object result, Type objectType, Dictionary<string, MemberInfo> memberMap, Type genericDictionaryType)
 		{
 			if (this.Source[this.index] != JsonReader.OperatorObjectStart)
 			{
@@ -523,7 +523,15 @@ namespace JsonFx.Json
 				}
 				else
 				{
-					this.Settings.Coercion.SetMemberValue(result, memberType, memberInfo, value);
+                    if (this.Settings.IsTypeHintName(memberName))
+                    {
+                        //result = this.Settings.Coercion.ProcessTypeHint(dict, value as string, out objectType, out memberMap);
+                        result = this.Settings.Coercion.ProcessTypeHint(result, value as string, out objectType, out memberMap);
+                    }
+                    else
+                    {
+                        this.Settings.Coercion.SetMemberValue(result, memberType, memberInfo, value);
+                    }
 				}
 
 				// get next token

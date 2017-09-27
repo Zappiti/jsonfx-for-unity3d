@@ -125,7 +125,29 @@ namespace JsonFx.Json
 			return this.CoerceType(hintedType, result, out memberMap);
 		}
 
-		internal Object InstantiateObject(Type objectType, out Dictionary<string, MemberInfo> memberMap)
+        internal object ProcessTypeHint(object result, string typeInfo, out Type objectType, out Dictionary<string, MemberInfo> memberMap)
+        {
+            Type hintedType = Type.GetType(typeInfo, false);
+
+            if (Type.Equals(hintedType, null))
+            {
+                objectType = null;
+                memberMap = null;
+                return result;
+            }
+
+            objectType = hintedType;
+
+            if (result != null && Type.Equals(result.GetType(), hintedType))
+            {
+                memberMap = GetMemberMap(objectType);
+                return result;
+            }
+
+            return InstantiateObject(objectType, out memberMap);
+        }
+
+        internal Object InstantiateObject(Type objectType, out Dictionary<string, MemberInfo> memberMap)
 		{
 			if (objectType.IsInterface || objectType.IsAbstract || objectType.IsValueType)
 			{
